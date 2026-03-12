@@ -14,6 +14,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AddDoctor from "./pages/admin/AddDoctor";
 import Reports from "./pages/admin/Reports";
 import ProtectedRoute from "./components/ProtectedRoute";
+import BookAppointment from "./pages/patient/BookAppointment";
 
 function App() {
 
@@ -32,6 +33,7 @@ function App() {
 
         <Route path="/doctor" element={<DoctorDashboard />} />
         <Route path="/doctor/appointments" element={<DoctorAppointments />} />
+        <Route path="/book/:doctorId" element={<BookAppointment />} />
 
         <Route
           path="/admin"

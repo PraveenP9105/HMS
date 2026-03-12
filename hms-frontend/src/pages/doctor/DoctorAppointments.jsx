@@ -4,43 +4,117 @@ import DashboardLayout from "../../components/DashboardLayout";
 
 function DoctorAppointments() {
 
-    const [appointments, setAppointments] = useState([]);
+  const [appointments,setAppointments] = useState([]);
+  const [patients,setPatients] = useState({});
 
-    const doctorId = localStorage.getItem("userId");
+  const doctorId = localStorage.getItem("userId");
 
-    useEffect(() => {
+  useEffect(()=>{
 
-        load();
+    load();
+    loadPatients();
 
-    }, []);
+  },[]);
 
-    const load = async () => {
+  const load = async ()=>{
 
-        const res = await API.get(`/doctor/appointments/${doctorId}`);
+    const res = await API.get(`/doctor/appointments/${doctorId}`);
 
-        setAppointments(res.data);
+    setAppointments(res.data);
 
-    }
+  };
 
-    return (
+  const loadPatients = async ()=>{
 
-        <DashboardLayout>
+    const res = await API.get("/doctor/patients");
 
-            <h1 className="text-2xl mb-4">Doctor Appointments</h1>
+    const map = {};
 
-            {appointments.map(a => (
-                <div key={a.id} className="bg-white shadow p-3 mb-2">
+    res.data.forEach(p=>{
+      map[p.id] = p;
+    });
 
-                    <p>Patient: {a.patientId}</p>
-                    <p>Date: {a.appointmentDate}</p>
-                    <p>Status: {a.status}</p>
+    setPatients(map);
 
-                </div>
-            ))}
+  };
 
-        </DashboardLayout>
+  const confirm = async(id)=>{
 
-    )
+    await API.put(`/doctor/confirm/${id}`);
+
+    load();
+
+  };
+
+  return(
+
+    <DashboardLayout>
+
+      <h1 className="text-2xl mb-4 font-bold">
+        All Appointments
+      </h1>
+
+      <table className="w-full bg-white shadow rounded">
+
+        <thead>
+
+          <tr className="bg-gray-200">
+
+            <th className="p-2">Patient</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Action</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {appointments.map(a=>{
+
+            const patient = patients[a.patientId];
+
+            return(
+
+              <tr key={a.id} className="border-t">
+
+                <td className="p-2">
+                  {patient ? patient.name : a.patientId}
+                </td>
+
+                <td>{a.appointmentDate}</td>
+
+                <td>{a.status}</td>
+
+                <td>
+
+                  {a.status === "BOOKED" && (
+
+                    <button
+                      onClick={()=>confirm(a.id)}
+                      className="bg-blue-500 text-white px-3 py-1 rounded"
+                    >
+                      Confirm
+                    </button>
+
+                  )}
+
+                </td>
+
+              </tr>
+
+            );
+
+          })}
+
+        </tbody>
+
+      </table>
+
+    </DashboardLayout>
+
+  );
 
 }
 
